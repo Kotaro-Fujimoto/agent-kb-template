@@ -99,7 +99,18 @@ gh issue view <番号> --repo {YOUR_GITHUB_LOGIN}/agent-kb --json title,body,sta
 
 着手前に `initiative_id` ラベルが付いていない場合、以下の手順で推測・確認する。
 
-**判断軸**:
+**分割サイン（initiative化を検討するタイミング）**:
+
+以下のいずれかに当てはまれば、initiative化を積極的に提案する:
+
+1. **着手前に「何から始めるか」を選ぶ必要がある** — 独立した入口が複数ある
+2. **`type:*` ラベルを複数つけられそうな内容** — 性質の異なる作業（research / task など）が混在している
+
+Done条件の数は判断軸にしない（複数のDone条件を持つissueは適切な書き方であって分割サインではない）。
+
+分割サインの検知タイミング: `/file-issue` 起票時・`/start-issue` 着手時・`/close-issue` 完了時。
+
+**3択の判断軸**:
 
 | 状況 | 推測 |
 |---|---|
@@ -114,6 +125,26 @@ gh issue view <番号> --repo {YOUR_GITHUB_LOGIN}/agent-kb --json title,body,sta
 3. ユーザーの確認を取ってから、ラベル付与または新規initiative作成を実施する
 
 確認前にラベルを付与しない。推測が外れるコストより、確認の手間のほうが小さい。
+
+**新規initiative作成の実行手順**:
+
+ユーザーが「新規initiativeとする」と確認した場合、以下を実施する。
+
+1. `initiatives/_registry.md` の上位initiative一覧にエントリを追加する（`initiative_id`・表示名・status・正本doc）
+2. GitHub ラベルを作成する
+
+```bash
+gh label create "initiative:<id>" --color 1d76db --description "<表示名>" --repo {YOUR_GITHUB_LOGIN}/agent-kb
+```
+
+3. Issueに `initiative:<id>` ラベルを付与する
+
+```bash
+gh issue edit <num> --repo {YOUR_GITHUB_LOGIN}/agent-kb --add-label "initiative:<id>"
+```
+
+4. 正本docが必要なら `initiatives/<id>.md` を作成し、`INDEX.md` にエントリを追加する
+5. `_registry.md`（と `INDEX.md`）の変更をcommit・pushする
 
 ---
 
