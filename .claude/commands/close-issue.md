@@ -114,12 +114,8 @@ mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){
 
 ユーザーが「initiative化する」と判断した場合は、`patterns/issue_based_agent_workflow.md`「新規initiative作成の実行手順」に従って作成してからcloseする。
 
-### Step 7: Issue close
-
-```bash
-gh issue close $ARGUMENTS --repo {YOUR_GITHUB_LOGIN}/agent-kb
-```
-
-### Step 8: 完了報告
+### Step 7: 完了報告
 
 KB更新内容・Issueコメント・close完了を一行ずつ報告する。
+
+> **注意**: Status=Done への更新で GitHub Projects の「Auto-close issue」automation が自動的に Issue を close する。`gh issue close` は不要。
