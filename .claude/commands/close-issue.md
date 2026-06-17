@@ -102,12 +102,24 @@ mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){
 
 > **注意**: option IDの渡し方は `-f o=`（小文字・raw-field）を使う。`-F`（大文字）は型推論するため、`98236657` のような純粋な10進数IDをintegerに変換してしまい `String!` 型エラーになる。
 
-### Step 6: Issue close
+### Step 6: initiative化の提案（任意）
+
+以下のいずれかに当てはまる場合、Issue closeの前にinitiative化を提案する:
+
+- このIssueから続きそうな関連テーマが浮かんでいる
+- 今回のDone条件に性質の異なる作業（research / task など）が混在していた
+- 「次はこれをやりたい」という関連テーマが自然と出てきた
+
+提案例: 「このテーマは今後も発展しそうです。initiativeとして `_registry.md` に登録しますか？」
+
+ユーザーが「initiative化する」と判断した場合は、`patterns/issue_based_agent_workflow.md`「新規initiative作成の実行手順」に従って作成してからcloseする。
+
+### Step 7: Issue close
 
 ```bash
 gh issue close $ARGUMENTS --repo {YOUR_GITHUB_LOGIN}/agent-kb
 ```
 
-### Step 7: 完了報告
+### Step 8: 完了報告
 
 KB更新内容・Issueコメント・close完了を一行ずつ報告する。
