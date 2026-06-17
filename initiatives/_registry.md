@@ -52,6 +52,38 @@ GitHub issueの主文脈は、ファイルパスではなく上位initiativeの 
 |---|---|---|---|---|---|
 | （ここに追加する） | | | | | |
 
+## 新規initiative作成手順
+
+新しい上位initiativeを作成する際は、以下の手順を実施する。
+
+**1. 本ファイル（`_registry.md`）に追加する**
+
+「`initiative:*` ラベルの採番元（上位initiative一覧）」表に1行追加する:
+
+```
+| `<initiative_id>` | <表示名> | `active` | [<id>.md](<id>.md) | <備考> |
+```
+
+**2. GitHub ラベルを作成する**
+
+```bash
+gh label create "initiative:<id>" --color 1d76db --description "<表示名>" --repo {YOUR_GITHUB_LOGIN}/agent-kb
+```
+
+**3. 正本docを作成する（任意）**
+
+`initiatives/<id>.md` を作成し、背景・目的・確定方針を書く。作成した場合は `INDEX.md` にもエントリを追加する。
+
+**4. 変更をcommit・pushする**
+
+```bash
+git -C ~/agent-kb add initiatives/_registry.md INDEX.md initiatives/<id>.md
+git -C ~/agent-kb commit -m "add: initiatives/_registry.md — <id> initiativeを追加"
+git -C ~/agent-kb push
+```
+
+---
+
 ## アーカイブ時の運用ルール
 
 initiative KBを `archive/initiatives/` へ移動する際、以下の手順を実施する。
