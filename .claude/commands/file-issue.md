@@ -15,6 +15,17 @@
 - 関連するinitiativeや既存Issueはあるか（`gh issue list --repo {YOUR_GITHUB_LOGIN}/agent-kb --state open` で一覧確認）
 - type（task / decision / research / bug / chore）とpriority（high / medium / low）の目安
 
+**分割サイン検知（initiative化の積極提案）**:
+
+深掘りの中で以下のいずれかを検知したら、initiative化を提案する:
+
+1. **着手前に「何から始めるか」を選ぶ必要がある** — 独立した入口が複数ある
+2. **`type:*` ラベルを複数つけられそうな内容** — 性質の異なる作業（research / task など）が混在している
+
+提案例: 「このIssueは○○という観点で複数の独立した作業が含まれます。initiativeとして登録しますか？それとも一つのIssueとして進めますか？」
+
+ユーザーが「initiative化する」と判断した場合は、Step 3実行後に `patterns/issue_based_agent_workflow.md`「新規initiative作成の実行手順」に従って作成する。
+
 ### Step 2: Issue本文ドラフトを提示・確認
 
 対話で整理した内容をもとに以下の形式でドラフトを提示し、確認を得る。
