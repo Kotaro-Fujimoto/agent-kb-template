@@ -25,6 +25,24 @@ gh issue view $ARGUMENTS --repo {YOUR_GITHUB_LOGIN}/agent-kb --json title,body,s
 
 `initiative:*` ラベルが付いていない場合は、`~/agent-kb/initiatives/_registry.md` の上位initiative一覧を確認し、Issue内容から「既存initiativeに紐づける / 新規initiativeとする / 紐づけなし」を推測して根拠とともに提示し、ユーザーに確認してからラベルを付与する。
 
+**新規initiative作成の実行手順**（ユーザーが「新規initiativeとする」と確認した場合）:
+
+1. `initiatives/_registry.md` の上位initiative一覧にエントリを追加する（`initiative_id`・表示名・status・正本doc）
+2. GitHub ラベルを作成する
+
+```bash
+gh label create "initiative:<id>" --color 1d76db --description "<表示名>" --repo {YOUR_GITHUB_LOGIN}/agent-kb
+```
+
+3. Issueに `initiative:<id>` ラベルを付与する
+
+```bash
+gh issue edit $ARGUMENTS --repo {YOUR_GITHUB_LOGIN}/agent-kb --add-label "initiative:<id>"
+```
+
+4. 正本docが必要なら `initiatives/<id>.md` を作成し、`INDEX.md` にエントリを追加する
+5. 変更をcommit・pushする
+
 ### Step 4: StatusをIn Progressに更新
 
 StatusフィールドID: `{STATUS_FIELD_ID}`
