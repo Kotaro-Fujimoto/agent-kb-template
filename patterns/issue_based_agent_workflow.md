@@ -6,6 +6,8 @@
 
 各プロトコルはスラッシュコマンドとして実装されている。コマンド定義: `~/.claude/commands/`
 
+API・GitHub Projects操作の横断的な基本動作（記録値で楽観実行→失敗時だけ再取得）は `patterns/api_usage_basics.md`、GitHub Projects固有の安定キー・落とし穴は `tools/github_projects.md` を正本とする。
+
 | コマンド | 用途 |
 |---|---|
 | `/file-issue <タイトル>` | Issue起票（対話でDone条件・背景を整理してから起票） |
@@ -24,6 +26,9 @@
 | `{PROJECT_NUMBER}` | GitHub Projectsの番号（URLの `/projects/<番号>`） | GitHub Projects URL |
 | `{PROJECT_ID}` | ProjectのグローバルNode ID | `gh api graphql -f query='query{user(login:"{YOUR_GITHUB_LOGIN}"){projectV2(number:{PROJECT_NUMBER}){id}}}'` |
 | `{STATUS_FIELD_ID}` | StatusフィールドのID | `gh api graphql ...` でフィールド一覧を取得 |
+| `{IN_PROGRESS_OPTION_ID}` / `{REVIEW_OPTION_ID}` / `{DONE_OPTION_ID}` ほか | Status各optionのID（コマンドのStatus更新で使う） | `tools/github_projects.md`「安定ID」節の取得 query で全option一括取得 |
+
+Status option ID は `tools/github_projects.md`「安定ID」節に**記録するのが正本**。一度取得して記録すれば、`/start-issue`・`/close-issue` は毎回の option 取得 query を挟まず、記録値で楽観実行する（`patterns/api_usage_basics.md` §1）。
 
 ---
 
@@ -225,21 +230,14 @@ GitHub Projects / labels / GraphQL操作の詳細は `tools/github_projects.md` 
 
 ## GitHub Projects GraphQL 操作リファレンス
 
-### Status を更新する（共通パターン）
+詳細な安定キーの記録・落とし穴・再取得トリガーは `tools/github_projects.md` を正本とする。ここでは Status 更新の共通パターンだけ示す。
+
+### Status を更新する（記録値で楽観実行）
+
+option IDは `tools/github_projects.md`「安定ID」節の記録値（プレースホルダー置換済み）をそのまま使う。**毎回の option 取得 query は挟まない**（`patterns/api_usage_basics.md` §1）。失敗時のみ再取得する。
 
 ```bash
-# StatusフィールドのoOption IDを取得
-gh api graphql -f query='
-query($login:String!, $number:Int!){
-  user(login:$login){ projectV2(number:$number){
-    fields(first:50){ nodes{
-      ... on ProjectV2SingleSelectField { id name options { id name } }
-    }}
-  }}
-}' -F login={YOUR_GITHUB_LOGIN} -F number={PROJECT_NUMBER} \
-  --jq '.data.user.projectV2.fields.nodes[] | select(.name == "Status") | .options'
-
-# IssueのProject item IDを取得
+# IssueのProject item IDを取得（item IDはissueごとに固定で記録対象外）
 gh api graphql -f query='
 query($login:String!, $number:Int!){
   user(login:$login){ projectV2(number:$number){ items(first:100){ nodes{
@@ -249,13 +247,15 @@ query($login:String!, $number:Int!){
 }' -F login={YOUR_GITHUB_LOGIN} -F number={PROJECT_NUMBER} \
   --jq ".data.user.projectV2.items.nodes[] | select(.content.number == <ISSUE_NUMBER>) | .id"
 
-# StatusをIn Progressに設定
+# Statusを設定（記録値の option ID をそのまま使う。例: In Progress）
 gh api graphql -f query='
 mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){
   updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$o}}){
     projectV2Item{ id }
   }
-}' -F p={PROJECT_ID} -F i=<ITEM_ID> -F f={STATUS_FIELD_ID} -f o=<OPTION_ID>
+}' -F p={PROJECT_ID} -F i=<ITEM_ID> -F f={STATUS_FIELD_ID} -f o={IN_PROGRESS_OPTION_ID}
 ```
 
 > **注意**: option IDの渡し方は `-f o=`（小文字・raw-field）を使う。`-F`（大文字）は型推論するため、純粋な10進数IDをintegerに変換してしまい `String!` 型エラーになる。
+>
+> **失敗時のみ再取得**: `option not found` 等で失敗したときだけ、Status の全 option を再取得し（`tools/github_projects.md` の取得 query）、`tools/github_projects.md` の記録値を更新してから再実行する。

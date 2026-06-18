@@ -60,23 +60,17 @@ gh issue comment $ARGUMENTS --repo {YOUR_GITHUB_LOGIN}/agent-kb --body "..."
 
 ### Step 5: StatusをDoneに設定
 
-StatusフィールドID: `{STATUS_FIELD_ID}`
+記録値（安定キー）で楽観実行する。option IDを毎回取得する事前 query は挟まない（`~/agent-kb/patterns/api_usage_basics.md` §1「既知値で楽観実行→失敗時だけ確認」）。
 
-Doneのoption IDを取得する。
+記録値（`~/agent-kb/tools/github_projects.md`「安定ID」節。セットアップ時に取得して記録済みの値）:
 
-```bash
-gh api graphql -f query='
-query($login:String!, $number:Int!){
-  user(login:$login){ projectV2(number:$number){
-    fields(first:50){ nodes{
-      ... on ProjectV2SingleSelectField { id name options { id name } }
-    }}
-  }}
-}' -F login={YOUR_GITHUB_LOGIN} -F number={PROJECT_NUMBER} \
-  --jq '.data.user.projectV2.fields.nodes[] | select(.name == "Status") | .options[] | select(.name == "Done")'
-```
+| 項目 | 値 |
+|---|---|
+| Project ID | `{PROJECT_ID}` |
+| Status field ID | `{STATUS_FIELD_ID}` |
+| Status option `Done` | `{DONE_OPTION_ID}` |
 
-IssueのProject item IDを取得する。
+IssueのProject item IDを取得する（item IDはissueごとに固定で記録対象外なので、これだけは取得する）。
 
 ```bash
 gh api graphql -f query='
@@ -89,7 +83,7 @@ query($login:String!, $number:Int!){
   --jq ".data.user.projectV2.items.nodes[] | select(.content.number == $ARGUMENTS) | .id"
 ```
 
-StatusをDoneに設定する。
+StatusをDoneに設定する（記録値 `{DONE_OPTION_ID}` をそのまま使う）。
 
 ```bash
 gh api graphql -f query='
@@ -97,10 +91,24 @@ mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){
   updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$o}}){
     projectV2Item{ id }
   }
-}' -F p={PROJECT_ID} -F i=<ITEM_ID> -F f={STATUS_FIELD_ID} -f o=<DONE_OPTION_ID>
+}' -F p={PROJECT_ID} -F i=<ITEM_ID> -F f={STATUS_FIELD_ID} -f o={DONE_OPTION_ID}
 ```
 
 > **注意**: option IDの渡し方は `-f o=`（小文字・raw-field）を使う。`-F`（大文字）は型推論するため、`98236657` のような純粋な10進数IDをintegerに変換してしまい `String!` 型エラーになる。
+
+> **フォールバック（失敗時のみ）**: mutation が `option not found` 等で失敗したときだけ、下記 query で Status の全 option を再取得し、正しい ID で再実行する。あわせて `~/agent-kb/tools/github_projects.md` の Status option 表を新しい値で更新する（GitHub Projects の Status 選択肢を編集すると option ID は新規発行されるため）。
+>
+> ```bash
+> gh api graphql -f query='
+> query($login:String!, $number:Int!){
+>   user(login:$login){ projectV2(number:$number){
+>     fields(first:50){ nodes{
+>       ... on ProjectV2SingleSelectField { id name options { id name } }
+>     }}
+>   }}
+> }' -F login={YOUR_GITHUB_LOGIN} -F number={PROJECT_NUMBER} \
+>   --jq '.data.user.projectV2.fields.nodes[] | select(.name == "Status") | .options[]'
+> ```
 
 ### Step 6: initiative化の提案（任意）
 

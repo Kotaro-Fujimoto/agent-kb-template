@@ -42,10 +42,11 @@ git clone https://github.com/{YOUR_GITHUB_LOGIN}/agent-kb.git ~/agent-kb
 
    > `.../projects/<PROJECT_NUMBER>/settings/workflows` を直接開くと 404 になる。必ず Project 本体を開いて右上 Workflows メニューから辿る。
 
-4. 以下の値を控えておく（後で使う）:
+4. 以下の値を控えておく（後で使う）。詳しい取得 query は `tools/github_projects.md`「安定ID」節:
    - **Project番号**: URL の `/projects/<番号>`
    - **Project ID**: `gh api graphql -f query='query{user(login:"{YOUR_GITHUB_LOGIN}"){projectV2(number:{PROJECT_NUMBER}){id}}}'`
    - **Status フィールド ID**: `gh api graphql ...` でフィールド一覧を取得
+   - **Status option ID（Inbox〜Done）**: 同じフィールド一覧 query で `Status` の `options { id name }` を取得。これを `tools/github_projects.md`「安定ID」表に記録すると、以降の Status 更新は毎回の取得 query なしに記録値で実行できる（`patterns/api_usage_basics.md` §1）。
 
 ### 3. ラベルを作成する
 
@@ -71,6 +72,8 @@ gh label create "priority:low"    --repo {YOUR_GITHUB_LOGIN}/agent-kb --color c5
 |---|---|
 | `AGENT_GUIDE.md` | `{YOUR_NAME}` / `{YOUR_COMPANY}` / `{YOUR_EMAIL}` |
 | `patterns/issue_based_agent_workflow.md` | `{YOUR_GITHUB_LOGIN}` / `{PROJECT_NUMBER}` / `{PROJECT_ID}` / `{STATUS_FIELD_ID}` |
+| `tools/github_projects.md` | 上記＋ Status option ID（`{INBOX_OPTION_ID}` 〜 `{DONE_OPTION_ID}`）を「安定ID」表に記録 |
+| `.claude/commands/start-issue.md` / `close-issue.md` | `{PROJECT_ID}` / `{STATUS_FIELD_ID}` / `{IN_PROGRESS_OPTION_ID}` / `{REVIEW_OPTION_ID}` / `{DONE_OPTION_ID}` |
 
 ### 5. スラッシュコマンドを配置する
 
@@ -103,11 +106,13 @@ agent-kb/
   INDEX.md                    ← 全エントリの索引
   patterns/
     issue_based_agent_workflow.md   ← Issue起点のAgent作業ルール
+    api_usage_basics.md             ← API操作の横断基本動作（記録値で楽観実行）
     kb_document_design.md           ← KB文書の設計・更新ルール
     information_management.md       ← フロー/ストック分離パターン
   initiatives/
     _registry.md              ← initiative一覧の正本
-  tools/                      ← ツール・SaaS・APIの知識
+  tools/
+    github_projects.md        ← GitHub Projects安定キー・Status更新・落とし穴
   company/                    ← 組織・事業・判断基準
   reference/                  ← 外部情報・人物プロファイル等
   archive/                    ← 完了済み・廃止済みの文書

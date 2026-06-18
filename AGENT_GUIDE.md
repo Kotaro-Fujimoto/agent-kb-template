@@ -18,7 +18,8 @@
 
 - KB文書の設計・作成・更新ルール: `patterns/kb_document_design.md`
 - Issue起点のAgent作業ルール: `patterns/issue_based_agent_workflow.md`
-- GitHub Projects / labels / `gh` 操作: `tools/github_projects.md`
+- API・外部サービス操作の横断基本動作（記録値で楽観実行→失敗時だけ確認）: `patterns/api_usage_basics.md`
+- GitHub Projects / labels / `gh` 操作・安定キー: `tools/github_projects.md`
 
 ---
 
@@ -150,9 +151,11 @@ KBマスターへの書き込みやpushが失敗した場合は、`~/.kb_buffer/
 このファイルを使い始める前に、以下を自分の環境に合わせて設定する。
 
 1. **Section 2 のユーザー情報**をあなたの名前・会社・メールに書き換える
-2. **`patterns/issue_based_agent_workflow.md`** 内のプレースホルダーを実際の値に書き換える:
+2. **`tools/github_projects.md`「安定ID」節**を取得して記録する（`patterns/api_usage_basics.md` §3 の確定値記録）。GitHub Projects 作成後に取得 query を1度回し、Project ID / Status field ID / Status option ID（Inbox〜Done）を表に転記する。
+3. **`patterns/issue_based_agent_workflow.md`** 内のプレースホルダーを実際の値に書き換える:
    - `{YOUR_GITHUB_LOGIN}` → あなたのGitHubログイン名
    - `{PROJECT_NUMBER}` → GitHub Projectsの番号
    - `{PROJECT_ID}` → Project のnode ID（`gh api graphql` で取得）
    - `{STATUS_FIELD_ID}` → Status フィールドのID（同上）
-3. **`~/.claude/commands/`** に `.claude/commands/` のファイルをコピーし、同じプレースホルダーを置き換える
+   - `{IN_PROGRESS_OPTION_ID}` / `{REVIEW_OPTION_ID}` / `{DONE_OPTION_ID}` → Status各optionのID（手順2で取得した値）
+4. **`~/.claude/commands/`** に `.claude/commands/` のファイルをコピーし、同じプレースホルダー（上記 option ID 含む）を置き換える
