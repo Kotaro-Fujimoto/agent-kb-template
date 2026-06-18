@@ -148,7 +148,7 @@ gh label create "initiative:<id>" --color 1d76db --description "<表示名>" --r
 gh issue edit <num> --repo {YOUR_GITHUB_LOGIN}/agent-kb --add-label "initiative:<id>"
 ```
 
-4. 正本docが必要なら `initiatives/<id>.md` を作成し、`INDEX.md` にエントリを追加する
+4. 正本docが必要なら `initiatives/<id>.md` を作成し、`INDEX.md` にエントリを追加する。docを作成する場合は本文に「## 退場条件」セクションを必ず書く（`initiatives/` 配下の全docタイプに適用。トリガー＋行き先のフォーマット正本: `initiatives/_registry.md`「退場条件」節）
 5. `_registry.md`（と `INDEX.md`）の変更をcommit・pushする
 
 ---

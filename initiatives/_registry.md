@@ -74,6 +74,8 @@ gh label create "initiative:<id>" --color 1d76db --description "<表示名>" --r
 
 `initiatives/<id>.md` を作成し、背景・目的・確定方針を書く。作成した場合は `INDEX.md` にもエントリを追加する。
 
+docを作成する場合は、本文に **「## 退場条件」セクションを必ず書く**（フォーマットは後述の「退場条件」節）。これは上位initiativeに限らず、`initiatives/` 配下に新規作成する全docタイプ（子initiative・design_doc・history_log・session_note等）に適用する。
+
 **4. 変更をcommit・pushする**
 
 ```bash
@@ -81,6 +83,39 @@ git -C ~/agent-kb add initiatives/_registry.md INDEX.md initiatives/<id>.md
 git -C ~/agent-kb commit -m "add: initiatives/_registry.md — <id> initiativeを追加"
 git -C ~/agent-kb push
 ```
+
+---
+
+## 退場条件（initiatives/ から出る条件）
+
+`initiatives/` は「進行中」の文脈を置く場所であり、完了・陳腐化・正本移管したdocがいつまでも滞留しないよう、**新規作成時にあらかじめ「いつ・どこへ出るか」を書いておく**。
+
+`initiatives/` 配下に新規作成する全docは、本文に次のセクションを持つ。
+
+```markdown
+## 退場条件
+
+- トリガー: <このdocが initiatives/ から出てよい条件>
+- 行き先: <archive/ へ退避 | <dir>/<file> へ再構成して移管 | 内容移管済みのため削除>
+```
+
+「行き先」は退場の処理方法であり、archiveだけではない。代表パターン:
+
+| 行き先 | 使う場面 |
+|---|---|
+| `archive/initiatives/` へ退避 | 完了・中断・陳腐化したが、経緯として履歴を残したい |
+| 別ディレクトリへ再構成して移管 | design_doc等が成熟し、`tools/` などの正本ドキュメントへ転換される |
+| 削除 | 必要な情報が別docへ正本化済みで、このdoc自体はもう不要 |
+
+doc_type別のトリガー例:
+
+| doc_type | トリガー例 | 想定行き先 |
+|---|---|---|
+| top_level / child_initiative | 目的が達成され、紐づくopen issueが無くなったら | archive/ |
+| design_doc | 後継設計書が正本化されたら / 内容が `tools/` 等へ転換されたら | 再構成して移管 or archive/ |
+| history_log / session_note | 記載内容が現行docへ正本化／消化されたら | archive/ or 削除 |
+
+実際に退場するときの操作（ラベルリネーム・registry更新）は、archive行きの場合は次の「アーカイブ時の運用ルール」に従う。再構成・削除の場合も、ラベルリネームとregistry更新は同様に行う。
 
 ---
 
