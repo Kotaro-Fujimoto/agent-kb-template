@@ -32,7 +32,17 @@ git clone https://github.com/{YOUR_GITHUB_LOGIN}/agent-kb.git ~/agent-kb
    | Review | Agentが完了報告・人間レビュー待ち |
    | Done | 完了・close済み |
 
-3. 以下の値を控えておく（後で使う）:
+3. **Auto-close issue automation を有効化する**
+
+   Status 選択肢を変更すると、GitHub Projects の「Auto-close issue」automation が無効化されることがある。以下の手順で有効化する:
+
+   1. ブラウザで Project 本体を開く（URL は `https://github.com/users/<GH_USER>/projects/<PROJECT_NUMBER>`）
+   2. 画面右上のメニュー（「…」アイコン）から **Workflows** を選択する
+   3. 一覧の「**Auto-close issue**」の行で **Enable** をクリックする
+
+   > `.../projects/<PROJECT_NUMBER>/settings/workflows` を直接開くと 404 になる。必ず Project 本体を開いて右上 Workflows メニューから辿る。
+
+4. 以下の値を控えておく（後で使う）:
    - **Project番号**: URL の `/projects/<番号>`
    - **Project ID**: `gh api graphql -f query='query{user(login:"{YOUR_GITHUB_LOGIN}"){projectV2(number:{PROJECT_NUMBER}){id}}}'`
    - **Status フィールド ID**: `gh api graphql ...` でフィールド一覧を取得
